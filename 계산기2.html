@@ -1,0 +1,90 @@
+html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카시오 스타일 공학용 계산기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #d1d5db; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: sans-serif; }
+        .calc-body { width: 340px; background: #e5e7eb; border-radius: 16px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 2px solid #9ca3af; }
+        /* 상단 화면 영역 */
+        .screen { background: #e2e8f0; height: 120px; border: 2px solid #6b7280; border-radius: 4px; margin-bottom: 20px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; color: #1f2937; font-family: 'Courier New', Courier, monospace; }
+        /* 기능 키 F1-F6 영역 */
+        .f-keys { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-bottom: 15px; }
+        .btn-f { background: #cbd5e1; border: 1px solid #94a3b8; font-size: 10px; padding: 6px 0; text-align: center; cursor: pointer; border-radius: 2px; }
+        /* 메인 버튼 그리드 */
+        .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .btn { background: #f3f4f6; border: 1px solid #9ca3af; border-radius: 4px; padding: 12px 0; text-align: center; cursor: pointer; font-weight: 700; color: #374151; box-shadow: 0 2px 0 #9ca3af; }
+        .btn:active { transform: translateY(2px); box-shadow: none; }
+        .btn-op { color: #dc2626; } /* 연산자 색상 */
+        .btn-exe { background: #3b82f6; color: white; border-color: #1e40af; box-shadow: 0 2px 0 #1e40af; }
+    </style>
+</head>
+<body>
+
+<div class="calc-body">
+    <div class="screen">
+        <div id="equation" class="text-sm h-1/2"></div>
+        <div id="result" class="text-3xl font-bold">0</div>
+    </div>
+    
+    <div class="f-keys">
+        <div class="btn-f">F1</div><div class="btn-f">F2</div><div class="btn-f">F3</div><div class="btn-f">F4</div><div class="btn-f">F5</div><div class="btn-f">F6</div>
+    </div>
+
+    <div class="btn-grid" id="buttons">
+        <!-- 버튼 생성 -->
+    </div>
+</div>
+
+<audio id="clickSound" src="https://actions.google.com/sounds/v1/ui/click.ogg" preload="auto"></audio>
+
+<script>
+    const display = document.getElementById('result');
+    const equation = document.getElementById('equation');
+    const clickSound = document.getElementById('clickSound');
+
+    const buttons = [
+        '7', '8', '9', '/',
+        '4', '5', '6', '*',
+        '1', '2', '3', '-',
+        '0', '.', 'EXP', '+'
+    ];
+
+    const btnContainer = document.getElementById('buttons');
+
+    buttons.forEach(text => {
+        const btn = document.createElement('div');
+        btn.classList.add('btn');
+        if (['/', '*', '-', '+', 'EXP'].includes(text)) btn.classList.add('btn-op');
+        btn.innerText = text;
+        btn.onclick = () => { playSound(); handleInput(text); };
+        btnContainer.appendChild(btn);
+    });
+
+    const exeBtn = document.createElement('div');
+    exeBtn.classList.add('btn', 'btn-exe');
+    exeBtn.innerText = 'EXE';
+    exeBtn.style.gridColumn = 'span 4';
+    exeBtn.onclick = () => { playSound(); calculate(); };
+    btnContainer.appendChild(exeBtn);
+
+    function playSound() { clickSound.currentTime = 0; clickSound.play().catch(() => {}); }
+
+    function handleInput(val) {
+        if (display.innerText === '0') display.innerText = val;
+        else display.innerText += val;
+    }
+
+    function calculate() {
+        try {
+            const res = eval(display.innerText.replace('EXP', 'e'));
+            equation.innerText = display.innerText;
+            display.innerText = res;
+        } catch { display.innerText = 'Syntax Error'; }
+    }
+</script>
+</body>
+</html>
